@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "React Chrome Extension",
+  "version": "1.0.0",
+  "description": "A simple React app as a Chrome extension",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "side_panel": {
+    "default_path": "index.html",
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "add_to_chat": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+A",
+        "mac": "Command+Shift+A"
+      },
+      "description": "add highlighted text to chat",
+    },
+    "open_side_panel": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+O",
+        "mac": "Command+Shift+O"
+      },
+      "description": "Open the side panel"
+    }
+  },
+  "content_scripts": [
+    {
+      "js": ["content.js"]
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "sidePanel",
+    "commands",
+    "contextMenus"
+  ],
+}
