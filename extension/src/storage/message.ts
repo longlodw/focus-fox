@@ -54,10 +54,10 @@ class MessagesStorage implements IStorage<IMessage> {
           if (limit && results.length < limit) {
             cursor.continue();
           } else {
-            resolve(results);
+            resolve(results.reverse());
           }
         } else {
-          resolve(results);
+          resolve(results.reverse());
         }
       };
       query.onerror = (event) => reject(event);

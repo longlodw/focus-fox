@@ -57,7 +57,7 @@ class ModelStorage implements IStorage<IModel> {
   }
 }
 
-export async function createModelStorage(): Promise<ModelStorage> {
+export async function createModelsStorage(): Promise<ModelStorage> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('focus-fox', 1);
     request.onupgradeneeded = (event) => {
