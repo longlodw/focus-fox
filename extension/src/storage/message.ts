@@ -3,7 +3,7 @@ import { type IStorage } from "./storage";
 export interface IMessage {
   id: string; // Unique identifier for the message
   roomId: string; // Identifier for the chat room this message belongs to
-  sender: "user" | "assistant" | "system"; // Indicates who sent the message
+  role: "user" | "assistant" | "system"; // Indicates who sent the message
   content: string; // The actual message content
   timestamp: number; // Unix timestamp of when the message was sent
   selectedTexts?: string[]; // Optional array of selected texts, if any
