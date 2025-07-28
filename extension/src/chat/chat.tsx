@@ -27,6 +27,21 @@ export default function Chat({ roomId }: { roomId: string }) {
       }
     });
   }, []);
+  useEffect(() => {
+    const loadMessages = async () => {
+      setLoading(true);
+      try {
+        const messagesStorage = await createMessagesStorage(roomId);
+        const loadedMessages = await messagesStorage.load();
+        setMessages(loadedMessages);
+      } catch (error) {
+        console.error("Error loading messages:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadMessages();
+  }, [roomId]);
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-4">
