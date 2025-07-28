@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import type { IMessage } from "../storage/message";
+import { createMessagesStorage, type IMessage } from "../storage/message";
 import { v7 } from "uuid";
 
-export default function Chat() {
+export default function Chat({ roomId }: { roomId: string }) {
   const [messages, setMessages] = useState([] as IMessage[]);
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState({
@@ -55,18 +55,29 @@ export default function Chat() {
         />
         <button
           className="mt-2 bg-blue-500 text-white p-2 rounded"
-          onClick={() => {
+          onClick={async () => {
             if (inputValue.content.trim() === "") return;
             setLoading(true);
-            const newMessage: IMessage = {
-              id: v7(),
-              sender: "user",
-              content: inputValue.content,
-              timestamp: Date.now(),
-              selectedTexts: inputValue.selectedTexts,
-            };
-            setMessages((prev) => [...prev, newMessage]);
-            setInputValue({ content: "", selectedTexts: [] });
+            try {
+              const newMessage: IMessage = {
+                roomId: roomId,
+                id: v7(),
+                sender: "user",
+                content: inputValue.content,
+                timestamp: Date.now(),
+                selectedTexts: inputValue.selectedTexts,
+              };
+              setMessages((prev) => [...prev, newMessage]);
+              setInputValue({ content: "", selectedTexts: [] });
+              const messagesStorage = await createMessagesStorage(roomId);
+              await messagesStorage.store([newMessage]);
+            }
+            catch (error) {
+              console.error("Error sending message:", error);
+            }
+            finally {
+              setLoading(false);
+            }
           }}
           disabled={loading}
         />
