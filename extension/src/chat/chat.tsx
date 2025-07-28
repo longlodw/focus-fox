@@ -169,6 +169,7 @@ export default function Chat({ roomId }: { roomId: string }) {
               timestamp: Date.now(),
               selectedTexts: inputValue.selectedTexts,
             };
+            setInputValue({ content: "", selectedTexts: [] });
             await mutation.mutateAsync(newMessage);
           }}
           disabled={loading || isPending || isFetching || isError || !selectedModel}
