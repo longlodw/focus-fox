@@ -14,7 +14,8 @@ export function useDomContent() {
       return null;
     }
     const hashedContent = MurmurHash3(content.documentElement.innerHTML).result();
-    if (domHash.current !== hashedContent) {
+    const changed = domHash.current !== hashedContent;
+    if (changed) {
       domHash.current = hashedContent;
       const article = new Readability(content).parse();
       if (!article?.content) {
@@ -25,7 +26,10 @@ export function useDomContent() {
       const markdownContent = turndownService.turndown(article.content);
       domMarkDown.current = markdownContent;
     }
-    return domMarkDown.current;
+    return {
+      dom: domMarkDown.current,
+      changed: changed,
+    };
   };
 }
 

@@ -4,6 +4,7 @@ import { createModelsStorage } from "../storage/model";
 import { v7 } from "uuid";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AI } from "../ai/ai";
+import { useDomContent } from "../hooks/useDomContent";
 
 export default function Chat({ roomId }: { roomId: string }) {
   const [loading, setLoading] = useState(false);
@@ -11,6 +12,7 @@ export default function Chat({ roomId }: { roomId: string }) {
     content: "",
     selectedTexts: [] as string[],
   });
+  const getDomContent = useDomContent();
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const { isPending, isFetching, isError, data, error } = useQuery({
     queryKey: ["messages", roomId],
@@ -19,7 +21,7 @@ export default function Chat({ roomId }: { roomId: string }) {
         createMessagesStorage(roomId).then(messagesStorage => messagesStorage.load()),
         createModelsStorage().then(modelsStorage => modelsStorage.load()),
       ]);
-      const messages = promises[0];
+      const messages = promises[0].filter((message: IMessage) => message.role !== "system");
       const models = promises[1];
       return {
         messages,
@@ -35,9 +37,19 @@ export default function Chat({ roomId }: { roomId: string }) {
         throw new Error("No model selected");
       }
       const messagesStorage = await createMessagesStorage(roomId);
+      const domConent = await getDomContent();
+      if (domConent && domConent.changed) {
+        const newSystemMessage: IMessage = {
+          roomId: roomId,
+          id: v7(),
+          role: "system",
+          content: `You are an AI assistant. The user has provided the following content from the current page:\n\n${domConent.dom}`,
+          timestamp: Date.now(),
+        };
+        await messagesStorage.store([newSystemMessage]);
+      }
       await messagesStorage.store([newMessage]);
-      const recentMessages = messages.slice(-15);
-      recentMessages.push(newMessage);
+      const recentMessages = await messagesStorage.load(undefined, 32);
       const ai = new AI(models.find((model) => model.id == selectedModel)!);
       return await ai.createChatCompletion(recentMessages);
     },
